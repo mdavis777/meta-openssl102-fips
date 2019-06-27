@@ -1,0 +1,59 @@
+OpenSSL FIPS validation Notes
+=============================
+[ Quoting: http://www.openssl.org/docs/fips/UserGuide-2.0.pdf ]
+
+The OpenSSL FIPS Object Module validation is unique among all FIPS 
+140-2 validations in that the product is "delivered" in source code 
+form, meaning that if you can use it exactly as is and can build it for 
+your platform according to a very specific set of instructions, then 
+you can use it as validated cryptography.
+
+The OpenSSL library is also unique in that you can download and use it 
+for free. If you require source code or build process changes for your 
+intended application, then you cannot use the open source based 
+validated module -- you must obtain your own "Private Label" 
+validation.
+
+If the existing validated OpenSSL FIPS Object Module is almost what you 
+need, but some minor modifications are necessary for your intended use, 
+then it may be possible to retroactively modify the original validation 
+to include those necessary changes. The process by which this is done 
+is known as the "maintenance letter" or "change letter" process. A 
+change letter can be substantially faster and less expensive than 
+obtaining a new, independent validation. Modifications to the FIPS 
+module to support a new platform (operating system or compiler) are 
+often compatible with the change letter process.
+
+At the time the OpenSSL FIPS Object Module v2.0 was developed, all 
+Unix-like environments supported by the full OpenSSL distribution were 
+also supported by the FIPS validated source files included in the FIPS 
+Object Module. However, successful compilation of the FIPS Object 
+Module for all such platforms was not verified. If any platform 
+specific compilation errors occur that can only be corrected by 
+modification of the FIPS distribution files (see Appendix B of the 
+Security Policy), then the FIPS Object Module will not be validated for 
+that platform.
+
+Note that as a condition of the FIPS 140-2 validation no other user 
+specified configuration options may be specified. This restriction 
+means that an optional install prefix cannot be specified -however, 
+there is no restriction on subsequent manual relocation of the 
+generated files to the desired final location.
+
+
+Build Project With This Feature
+=============================== 
+This template (feature/openssl) selects an alternative version of the 
+OpenSSL recipe.  This alternative version is enabled by using 
+PREFERRED_PROVIDER in the template.conf file to select the openssl-fips 
+recipe.
+
+Note: you may have to build OpenSSL-FIPS-140-2 for your target 
+architecture.  Errors during the configuration or build process 
+indicate that OpenSSL is not available and that you should prebuild the 
+software. Instructions are provided in README.build within the layer.
+
+In the case you have built OpenSSL-FIPS-140-2 you will need to set the 
+value OPENSSL_FIPS_PREBUILT in your build's conf/local.conf file.  
+You should set this to the path of the directory that contains the 
+prebuilt components.

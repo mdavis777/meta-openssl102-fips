@@ -1,0 +1,23 @@
+When FIPS is enabled, additional function need to be available for the
+parts and pieces to link against.
+
+Signed-off-by: Mark Hatle <mark.hatle@windriver.com>
+
+--- a/openssl.ld	2019-06-22 16:54:26.822199653 -0400
++++ b/openssl.ld	2019-06-22 16:29:04.070675338 -0400
+@@ -4595,6 +4595,15 @@
+ 		BUF_strnlen;
+ 		sk_deep_copy;
+ 		SSL_test_functions;
++		private_DES_set_key_unchecked;
++		private_AES_set_encrypt_key;
++		private_Camellia_set_key;
++		private_idea_set_encrypt_key;
++		private_SEED_set_key;
++		private_RC4_set_key;
++		private_RC2_set_key;
++		private_BF_set_key;
++		private_CAST_set_key;
+ 
+ 	local:
+ 		*;

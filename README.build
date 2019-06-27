@@ -1,0 +1,191 @@
+===============
+Introduce
+===============
+The OpenSSL Project is a collaborative effort to develop a robust,
+commercial-grade, full-featured, and Open Source toolkit implementing the
+Secure Sockets Layer (SSL v2/v3) and Transport Layer Security (TLS v1)
+protocols as well as a full-strength general purpose cryptography library
+managed by a worldwide community of volunteers that use the Internet to
+communicate, plan, and develop the OpenSSL toolkit and its related documentation.
+
+The Federal Information Processing Standard (FIPS) Publication 140-2
+is a U.S. government computer security standard used to accredit
+cryptographic modules.
+
+OpenSSL itself is not validated, and never will be. Instead a special
+carefully defined software component called the OpenSSL FIPS Object Module
+has been created. This Module was designed for compatibility with OpenSSL
+so that products using the OpenSSL API can be converted to use validated
+cryptography with minimal effort.
+
+References Documents:
+https://www.openssl.org/docs/fips.html
+https://www.openssl.org/docs/fips/UserGuide-2.0.pdf
+https://www.openssl.org/docs/fips/SecurityPolicy-2.0.16.pdf
+https://csrc.nist.gov/csrc/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp2398.pdf
+
+
+===============
+Building
+===============
+The following software must be built according to the instructions within
+the UserGuide-2.0.pdf (referenced above).  Precompiled versions in this
+directory were built using the method listed below.
+
+In order to build a precompiled version of the binary, you must first
+construct a target system that includes a target development environment.
+
+The easiest way to do this with Wind River Linux is include the template:
+
+    features/target-toolchain
+
+If you are building with configurations that have security software enabled,
+such as SE Linux, you may be required to boot in a non-enforcing mode to
+follow the steps below.  The configuration options necessary to boot into
+non-enforcing mode may vary depending on the security software and 
+configuration.
+
+Building Steps (based on section 4 of the UsersGuide-2.0.pdf):
+
+1. Acquire the OpenSSL FIPS Object Module v2.0.  See section 4.1 of
+   the UsersGuide-2.0.pdf for information required to meet CMVP "trusted
+   path" requirements.
+
+   At the time this document was written:
+
+      openssl-fips-2.0.16.tar.gz
+
+2. Transfer the verified file to the target system configured with a
+   target compiler.  Note: keep in mind the requirements of section
+   4 and the discussion from section 6.6 of the UsersGuide-2.0.pdf
+
+3. Building the FIPS Object Module
+    (On the target system)
+
+      gunzip -c openssl-fips-2.0.16.tar.gz | tar xf -
+      cd openssl-fips-2.0.16
+
+    # Follow the steps U1 or U2 in Appendx A of the Security Policy
+    # For U1:
+
+      ./config no-asm
+      make
+      make install
+
+    # For U2:
+
+      ./config
+      make
+      make install
+
+    Selection of U1 vs U2 approach needs to be considered under the
+    configurations in the UserGuide.  In some cases, only U1 or U2
+    will build and test properly for a given system configuration.  If
+    one approach does not work, it's advised to try the other approach.
+
+    Note that as a condition of the FIPS 140-2 validation no other
+    user specified configuration options may be specified.
+    This restriction means that an optional install prefix cannot
+    be specified!  However, there is no restriction on subsequent
+    manual relocation of the generated files to the desired final location.
+
+    In order to support cross compilation with the FIPS Object Module, the
+    'incore' script needs to also be available.
+
+      cp util/incore /usr/local/ssl/fips-2.0/bin/.
+
+    We also advise you to run the test suite as well using:
+
+      make build_tests
+      ./test/fips_test_suite fullpost
+
+4. Tar up the results and transfer back to your build system
+    (On the target system)
+    In the following <target_arch> refers to one of the defined target
+    architectures such as: x86, x86_64, powerpc, or armv7l
+
+      tar c /usr/local/ssl | bzip2 > openssl-fips-<openssl_version>-<target_arch>-install.tar.bz2
+
+    Move the tar archive back to your host project into a directory accessable
+    by the build system.
+
+5.  Configure the build system to locate your custom version:
+    In your build directory, edit conf/local.conf, add:
+
+    OPENSSL_FIPS_PREBUILT = "<path>"
+
+    Where path is the location on the host with the prebuilt openssl-fips.
+
+    Note: If you add or update the archive after trying to build openssl-fips,
+    the system may cache the failure message.  You may have to manually clear
+    the cache by running: rm -rf tmp-glibc/cache
+
+=======================
+Test Examples In Target
+=======================
+1. OpenSSL FIPS Power-On-Self-Test(POST)
+    $ <openssl-fips>/test/fips_test_suite post
+or: $ <openssl-fips>/fips_test_suite fullpost
+        FIPS-mode test application
+        FIPS 2.0.1 validated test module 12 Jun 2012
+
+		DRBG AES-256-CTR DF test started
+		DRBG AES-256-CTR DF test OK
+    1. Non-Approved cryptographic operation test...
+	a. Included algorithm (D-H)......successful
+	POST started
+		Integrity  test started
+		Integrity  test OK
+		DRBG AES-256-CTR DF test started
+		DRBG AES-256-CTR DF test OK
+
+        ...
+
+	POST Success
+    Testing operation failure with DRBG entropy failure
+		Pairwise Consistency DSA test started
+		Pairwise Consistency DSA test OK
+	DSA key generated OK as expected.
+		DRBG SHA512 test started
+		DRBG SHA512 test OK
+	DRBG entropy fail failed as expected
+	DSA signing failed as expected
+	ECDSA key generation failed as expected.
+    Induced failure test completed with 0 errors
+	successful as expected
+
+    All tests completed with 0 errors
+
+2. OpenSSL MD5 in FIPS mode
+    $ env OPENSSL_FIPS=1 /usr/bin/openssl md5 /usr/bin/openssl
+    Error setting digest md5
+    3073021576:error:060A80A3:digital envelope routines:FIPS_DIGESTINIT:disabled for fips:fips_md.c:180:
+
+    # If no FIPS module linked, openssl will say something else when OPENSSL_FIPS=1
+    # Try the following command in local host PC.
+    $ env OPENSSL_FIPS=1 /usr/bin/openssl md5 /usr/bin/openssl
+    FIPS mode not supported.
+
+3. OpenSSL MD5 in non-FIPS mode
+    $ /usr/bin/openssl md5 /usr/bin/openssl
+    MD5(/usr/bin/openssl)= 0b6ea5fd013fd1d9d00a95a44acc61c9
+
+4. OpenSSL SHA1 in FIPS mode
+    $ env OPENSSL_FIPS=1 /usr/bin/openssl sha1 /usr/bin/openssl
+    SHA1(/usr/bin/openssl)= 39c978de7152036e73ad2e62f677878f37d3f980
+
+5. OpenSSL SHA1 in non-FIPS mode
+    $ /usr/bin/openssl sha1 /usr/bin/openssl
+    SHA1(/usr/bin/openssl)= 39c978de7152036e73ad2e62f677878f37d3f980
+
+===========================
+Compiling with OpenSSL-FIPS
+===========================
+
+1. To Link Applications (on the target)
+    $ $(CC) -o $(OBJ) appx.c
+    ...
+    $ FIPSLD_CC=gcc /usr/bin/fipsld -o $(APP) $(OBJS) $(LIBS) -lcrypto  -L/lib/
+
+2. Cross compiling may require the use of qemu to do application execution.
+
