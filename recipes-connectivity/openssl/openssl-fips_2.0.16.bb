@@ -72,7 +72,7 @@ EOF
 # to be rebuilt.)
 #
 OPENSSL_FIPS_FULLPATH = "${@which(d.getVar('FILESPATH', True), d.getVar('PREBUILT_OPENSSL_FIPS', True)) or ""}"
-OPENSSL_FIPS_MTIME = "${@os.path.getmtime(d.getVar('OPENSSL_FIPS_FULLPATH', True))}"
+OPENSSL_FIPS_MTIME = "${@os.path.getmtime(d.getVar('OPENSSL_FIPS_FULLPATH', True)) if os.path.exists(d.getVar('OPENSSL_FIPS_FULLPATH', True)) else ""}"
 do_unpack[vardeps] += "OPENSSL_FIPS_FULLPATH OPENSSL_FIPS_MTIME"
 
 def which(paths, file):
@@ -84,23 +84,23 @@ def which(paths, file):
 
 OPENSSL_FIPS_PREBUILT ?= "${FILE_DIRNAME}/${BPN}"
 
-python () {
-    msg = ""
+addtask do_check_fips before do_fetch
+python do_check_fips() {
     if d.getVar('OPENSSL_FIPS_FULLPATH', True) == "":
         msg = "Support for %s (%s) is not available in %s." % \
                (d.getVar('TARGET_ARCH', True) or "", \
                 d.getVar('PREBUILT_OPENSSL_FIPS', True),
                 d.getVar('OPENSSL_FIPS_PREBUILT', True)) + \
                    " See %s/README.build for more information." % (d.getVar('LAYERPATH_meta-openssl-one-zero-two-fips', True) or "")
-    else:
-        msg = "Support for %s (%s) is available." % \
-               (d.getVar('TARGET_ARCH', True) or "", \
-                d.getVar('PREBUILT_OPENSSL_FIPS', True))
-
-    if d.getVar("OPENSSL_FIPS_ENABLED", True) != "1":
-        raise bb.parse.SkipPackage("To enable the openssl-fips recipe use the feature/openssl-fips template.  %s" % msg)
-
-    if d.getVar('OPENSSL_FIPS_FULLPATH', True) == "":
-        raise bb.parse.SkipPackage(msg)
+        raise bb.fatal(msg)
 }
 
+python __anonymous() {
+    if d.getVar("OPENSSL_FIPS_ENABLED", True) != "1":
+        raise bb.parse.SkipPackage("To enable the openssl-fips recipe use the feature/openssl-fips template.")
+}
+
+# Workaround warning `Unable to get checksum for lib32-openssl-fips
+# SRC_URI entry openssl-fips-2.0.16-i686-install.tar.bz2: file could
+# not be found'
+do_fetch[file-checksums] = " ${@get_lic_checksum_file_list(d)}"
