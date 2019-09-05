@@ -193,5 +193,5 @@ Compiling with OpenSSL-FIPS
     ...
     $ FIPSLD_CC=gcc /usr/bin/fipsld -o $(APP) $(OBJS) $(LIBS) -lcrypto  -L/lib/
 
-2. Cross compiling may require the use of qemu to do application execution.
-
+2. Cross compiling require the use of qemu to do application execution.
+ 

@@ -5,20 +5,20 @@ PACKAGECONFIG[fips] = "fips --with-fipsdir=${STAGING_DIR_TARGET}${libdir}/ssl/fi
 FILESEXTRAPATHS_prepend := "${THISDIR}/openssl:"
 
 # This adds the necessary symbols if fips is enabled.
-SRC_URI_append = " file://openssl-fips-version.patch"
+SRC_URI_append = " file://openssl-fips-version.patch \
+                   file://0001-make-fips_premain_dso-support-cross-compiling.patch \
+"
+
+DEPENDS += "qemu-native"
 
 inherit qemu
 
 # We need to run the special fips_premain_dso under QEMU
 do_compile_prepend() {
-	oe_runmake depend
-	oe_runmake fips_premain_dso
-
-	mv fips_premain_dso fips_premain_dso.real
-	cat << EOF > fips_premain_dso
+    qemu_binary="${@qemu_wrapper_cmdline(d, '${STAGING_DIR_HOST}', ['${STAGING_LIBDIR}','${STAGING_BASELIBDIR}'])}"
+    cat << EOF > fips_premain_dso
 #! /bin/sh
-
-${@qemu_run_binary(d, '$D', 'fips_premain_dso.real')}
+$qemu_binary fips_premain_dso.real "\$@"
 EOF
-	chmod +x fips_premain_dso
+    chmod +x fips_premain_dso
 }

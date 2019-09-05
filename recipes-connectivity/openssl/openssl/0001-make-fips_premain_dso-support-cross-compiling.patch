@@ -1,0 +1,48 @@
+From 0a7b7a0640f8a7105707b09fd38ccd13deba134a Mon Sep 17 00:00:00 2001
+From: Hongxu Jia <hongxu.jia@windriver.com>
+Date: Tue, 10 Sep 2019 14:56:09 +0800
+Subject: [PATCH] make fips_premain_dso support cross compiling
+
+Rename binary fips_premain_dso -> fips_premain_dso.real,
+create qemu wrapper fips_premain_dso to make it support
+cross compiling
+
+Upstream-Status: Inappropriate [oe specific]
+
+Signed-off-by: Hongxu Jia <hongxu.jia@windriver.com>
+---
+ Makefile.org | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile.org b/Makefile.org
+index 76e4988..0c10b16 100644
+--- a/Makefile.org
++++ b/Makefile.org
+@@ -301,13 +301,13 @@ all_testapps: build_libs build_testapps
+ build_testapps:
+ 	@dir=crypto; target=testapps; $(BUILD_ONE_CMD)
+ 
+-fips_premain_dso$(EXE_EXT): libcrypto.a
++fips_premain_dso.real: libcrypto.a
+ 	[ -z "$(FIPSCANLIB)" ] || $(CC) $(CFLAG) -Iinclude \
+ 		-DFINGERPRINT_PREMAIN_DSO_LOAD -o $@  \
+ 		$(FIPSLIBDIR)fips_premain.c $(FIPSLIBDIR)fipscanister.o \
+ 		libcrypto.a $(EX_LIBS)
+ 
+-libcrypto$(SHLIB_EXT): libcrypto.a fips_premain_dso$(EXE_EXT)
++libcrypto$(SHLIB_EXT): libcrypto.a fips_premain_dso.real
+ 	@if [ "$(SHLIB_TARGET)" != "" ]; then \
+ 		if [ "$(FIPSCANLIB)" = "libcrypto" ]; then \
+ 			FIPSLD_LIBCRYPTO=libcrypto.a ; \
+@@ -315,7 +315,7 @@ libcrypto$(SHLIB_EXT): libcrypto.a fips_premain_dso$(EXE_EXT)
+ 			export CC FIPSLD_CC FIPSLD_LIBCRYPTO; \
+ 		fi; \
+ 		$(MAKE) -e SHLIBDIRS=crypto  CC="$${CC:-$(CC)}" build-shared && \
+-		(touch -c fips_premain_dso$(EXE_EXT) || :); \
++		(touch -c fips_premain_dso.real || :); \
+ 	else \
+ 		echo "There's no support for shared libraries on this platform" >&2; \
+ 		exit 1; \
+-- 
+2.7.4
+
