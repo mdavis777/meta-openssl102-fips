@@ -20,8 +20,8 @@ SRC_URI = "file://${PREBUILT_OPENSSL_FIPS} \
 "
 S = "${WORKDIR}"
 
+RDEPENDS_${PN}-dev = ""
 FILES_${PN}-dev += "${bindir}/fipsld ${libdir}/ssl/fips-2.0"
-FILES_${PN}-dbg += "${libdir}/ssl/fips-2.0/bin/.debug"
 
 INHIBIT_PACKAGE_DEBUG_SPLIT = '1'
 INHIBIT_PACKAGE_STRIP = '1'
@@ -68,7 +68,7 @@ EOF
 #
 # Note: this does not cover the case where the archive was not present
 # and then has been added.  In this case the user must manually clear
-# the bitbake_build/tmp/cache directory (or otherwise force the cache
+# the tmp-glibc/cache directory (or otherwise force the cache
 # to be rebuilt.)
 #
 OPENSSL_FIPS_FULLPATH = "${@which(d.getVar('FILESPATH', True), d.getVar('PREBUILT_OPENSSL_FIPS', True)) or ""}"
