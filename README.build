@@ -40,7 +40,7 @@ The easiest way to do this with Wind River Linux is include:
 
     --templates features/target-toolchain --layers meta-openssl102-fips
 
-    Note: do not include the template feature/openssl-fips
+    Note: do not include template feature/openssl-fips
 
 If you are building with configurations that have security software enabled,
 such as SE Linux, you may be required to boot in a non-enforcing mode to
@@ -185,13 +185,52 @@ or: $ <openssl-fips>/fips_test_suite fullpost
     SHA1(/usr/bin/openssl)= 39c978de7152036e73ad2e62f677878f37d3f980
 
 ===========================
-Compiling with OpenSSL-FIPS
+Example OpenSSL Based Application
+(Appendix C in UsersGuide-2.0.pdf)
 ===========================
+In this application all cryptography is provided through the FIPS Object
+Module and the FIPS mode initialization is performed via the FIPS_mode_set()
+call. The command generates a HMAC-SHA-1 digest of an input stream or a
+file, using the same arbitrary key as the OpenSSL FIPS Module file integrity
+check
 
-1. To Link Applications (on the target)
-    $ $(CC) -o $(OBJ) appx.c
-    ...
-    $ FIPSLD_CC=gcc /usr/bin/fipsld -o $(APP) $(OBJS) $(LIBS) -lcrypto  -L/lib/
+1. Linking with the Shared Object (cross compiling)
+Linking with the shared object is easiest. That's because the FIPS Capable library
+build process takes care of a number of items for you, including running fipsld on
+the shared object libcrypto.so. Then you could dynamicly link the library (-lcrypto)
+in your recipe as normal.
+More details at recipe openssl-fips-example do_compile task
 
-2. Cross compiling require the use of qemu to do application execution.
- 
+2. Linking with the Static Archive (on the target)
+Linking against the static library is more challenging. That's because you have to
+set two variables -- CC and FIPSLD_CC and compile with the modified CC. They must be
+exported because fipsld uses them in child shells. Behind the scenes, fipsld will
+compile and link fips_premain.c, modify the libcrypto archive, assemble the final
+program, and embed the fingerprint.
+
+On host:
+edit local.conf to add openssl-fips-example to image
+$ echo 'IMAGE_INSTALL_append = " openssl-fips-example"' >> conf/local.conf
+$ bitbake <image>
+
+On target:
+$ cd /usr/lib64/ssl/fips-2.0/test
+$ make
+gcc -c fips_hmac.c
+FIPSLD_CC=gcc /usr/lib64/ssl/fips-2.0//bin/fipsld -o fips_hmac fips_hmac.o /usr/lib64/libcrypto.a -ldl
+
+3. Run applications with fips enabled on target
+All of them will generate the same HMAC-SHA-1 digest
+$ cd /usr/lib64/ssl/fips-2.0/test
+$ ./fips_hmac -v ./fips_hmac.c
+FIPS mode enabled
+ae25ad68d9a8cc04075100563a437fa37829afcc
+
+# ./fips_hmac.cross -v ./fips_hmac.c
+FIPS mode enabled
+ae25ad68d9a8cc04075100563a437fa37829afcc
+
+Note this sample command is functionally equivalent to:
+$ env OPENSSL_FIPS=1 openssl sha1 -hmac etaonrishdlcupfm fips_hmac.c
+HMAC-SHA1(fips_hmac.c)= ae25ad68d9a8cc04075100563a437fa37829afcc
+
