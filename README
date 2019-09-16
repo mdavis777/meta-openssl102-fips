@@ -25,17 +25,44 @@ available for re-use.
 
 Dependencies
 ------------
-This layer depends on oe-core and the meta-openssl102 layer.
+This layer depends on OpenEmbedded-core (meta) layer and meta-openssl102
+layer.
 
-In order to use the templates, this layer recommends use of the wr-template
-layer as well.
+
+Usage
+-----
+
+You must provide your own certified OpenSSL Object Modules to be FIPS-140-2
+compliant.  See the README.build file for instructions on how to build them.
+Be aware, building them per the instructions does not mean they are certified
+you must consult the User Guide and possibly a certification lab.
+
+One the modules are placed somewhere, you will need to instruct the system
+to enable OpenSSL FIPS mode, as well as tell the system where your binaries
+are located.
+
+In your local.conf file set:
+
+   OPENSSL_FIPS_ENABLED = '1'
+
+   OPENSSL_FIPS_PREBUILT = 'path to prebuild binaries'
+
+or if you have the wr-template layer, add to WRTEMPLATE feature/openssl-fips:
+
+   WRTEMPLATE = "feature/openssl-fips"
+
+or use the template without wr-template, add to your local.conf:
+
+   include <path_to_layer>/templates/feature/openssl-fips
+
+Note, if you use the template approach, you may still need to set the
+OPENSSL_FIPS_PREBUILT in your local.conf.
 
 
 Maintenance
 -----------
-This layer is maintained by Wind River Systems, Inc.
-Contact <support@windriver.com> or your support representative for more
-information on submitting changes.
+Please see the MAINTAINERS file for information on contacting the maintainers
+of this layer, as well as instructions for submitting patches.
 
 
 License
