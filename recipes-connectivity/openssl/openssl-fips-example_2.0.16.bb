@@ -48,3 +48,8 @@ do_install() {
 }
 
 INSANE_SKIP_${PN} += "dev-deps"
+
+python __anonymous() {
+    if d.getVar("OPENSSL_FIPS_ENABLED", True) != "1":
+        raise bb.parse.SkipPackage("To enable the openssl-fips-example set OPENSSL_FIPS_ENABLED = '1'.")
+}

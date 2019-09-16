@@ -97,7 +97,7 @@ python do_check_fips() {
 
 python __anonymous() {
     if d.getVar("OPENSSL_FIPS_ENABLED", True) != "1":
-        raise bb.parse.SkipPackage("To enable the openssl-fips recipe use the feature/openssl-fips template.")
+        raise bb.parse.SkipPackage("To enable the openssl-fips recipe set OPENSSL_FIPS_ENABLED = '1'.")
 }
 
 # Workaround warning `Unable to get checksum for lib32-openssl-fips
