@@ -40,13 +40,15 @@ The easiest way to do this with Yocto is include this layer [1]
 and meta-openssl102 [2], and install packagegroup-core-buildessential
 to image [3]
 
-[1] git://git.yoctoproject.org/meta-openssl102
-[2] git://git.yoctoproject.org/meta-openssl102-fips
+[1] git://git.yoctoproject.org/meta-openssl102-fips
+[2] git://git.yoctoproject.org/meta-openssl102
+    Manually set 1.0.2% to openssl preferred version
+    echo "PREFERRED_VERSION_openssl = '1.0.2%'" >> conf/local.conf
 [3] echo "IMAGE_INSTALL += 'packagegroup-core-buildessential'" >> conf/local.conf
 
 The easiest way to do this with Wind River Linux is include:
 
-    --templates features/target-toolchain --layers meta-openssl102-fips
+    --templates features/target-toolchain --templates feature/openssl102 --layers meta-openssl102-fips
 
     Note: do not include template feature/openssl-fips
 
