@@ -36,6 +36,14 @@ In order to build a precompiled version of the binary, you must first
 construct a target system that includes a target development environment
 and meta-openssl102-fips layer without feature/openssl-fips
 
+The easiest way to do this with Yocto is include this layer [1]
+and meta-openssl102 [2], and install packagegroup-core-buildessential
+to image [3]
+
+[1] git://git.yoctoproject.org/meta-openssl102
+[2] git://git.yoctoproject.org/meta-openssl102-fips
+[3] echo "IMAGE_INSTALL += 'packagegroup-core-buildessential'" >> conf/local.conf
+
 The easiest way to do this with Wind River Linux is include:
 
     --templates features/target-toolchain --layers meta-openssl102-fips
@@ -112,13 +120,16 @@ Building Steps (based on section 4 of the UsersGuide-2.0.pdf):
     Move the tar archive back to your host project into a directory accessable
     by the build system.
 
-5.  Configure the build system to include the template feature/openssl-fips
-    and locate your custom prebuilt tar archive:
-    In your build directory, edit conf/local.conf, add:
+5.  Configure the build system to enable openssl-fips and locate your custom
+    prebuilt tar archive.
 
-    WRTEMPLATE += "feature/openssl-fips"
+    For Yocto, in your build directory, edit conf/local.conf, add:
+      OPENSSL_FIPS_ENABLED = "1"
+      OPENSSL_FIPS_PREBUILT = "<path>"
 
-    OPENSSL_FIPS_PREBUILT = "<path>"
+    For Wind River Linux, in your build directory, edit conf/local.conf, add:
+      WRTEMPLATE += "feature/openssl-fips"
+      OPENSSL_FIPS_PREBUILT = "<path>"
 
     Where path is the location on the host with the prebuilt openssl-fips.
 
