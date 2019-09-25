@@ -1,0 +1,56 @@
+To turn your system (kernel and user space) into FIPS mode, follow these steps:
+
+1. Enable FIPS mode in kernel:
+The `fips=1' kernel option needs to be added to the kernel command line so that key
+generation is done with FIPS approved algorithms and continuous monitoring tests in
+place:
+...
+[    0.000000] Linux version 5.3.0-yoctodev-standard (oe-user@oe-host) (gcc version 9.2.0 (GCC)) #1 SMP PREEMPT Sun Sep 22 07:03:58 UTC 2019
+[    0.000000] Command line: root=/dev/vda rw highres=off  console=ttyS0 fips=1
+[    0.281178] alg: self-tests for rsa-generic (rsa) passed
+[    0.283124] alg: self-tests for cipher_null-generic (cipher_null) passed
+[    0.284199] alg: self-tests for ecb-cipher_null (ecb(cipher_null)) passed
+[    0.285596] alg: self-tests for sha1-generic (sha1) passed
+[    0.287474] alg: self-tests for sha256-generic (sha256) passed
+[    0.289138] alg: self-tests for sha224-generic (sha224) passed
+[    0.290277] alg: self-tests for des3_ede-generic (des3_ede) passed
+[    0.292005] alg: self-tests for aes-generic (aes) passed
+[    0.294431] alg: self-tests for crc32c-generic (crc32c) passed
+[    0.295046] alg: self-tests for drbg_pr_hmac_sha1 (stdrng) passed
+[    0.296927] alg: self-tests for drbg_pr_hmac_sha384 (stdrng) passed
+[    0.298001] alg: self-tests for drbg_pr_hmac_sha512 (stdrng) passed
+[    0.301064] alg: self-tests for hmac(sha256-generic) (hmac(sha256)) passed
+[    0.303057] alg: self-tests for drbg_pr_hmac_sha256 (stdrng) passed
+[    0.304026] alg: self-tests for drbg_nopr_hmac_sha1 (stdrng) passed
+[    0.304999] alg: self-tests for drbg_nopr_hmac_sha384 (stdrng) passed
+[    0.306001] alg: self-tests for drbg_nopr_hmac_sha512 (stdrng) passed
+[    0.307377] alg: self-tests for drbg_nopr_hmac_sha256 (stdrng) passed
+[    0.311120] DRBG: Continuing without Jitter RNG
+[    0.316952] alg: self-tests for ecdh-generic (ecdh) passed
+[    0.996938] alg: self-tests for jitterentropy_rng (jitterentropy_rng) passed
+[    3.330824] alg: self-tests for cbc(aes-generic) (cbc(aes)) passed
+...
+
+Kernel FIPS mode verification
+You have two options:
+1) cat /proc/sys/crypto/fips_enabled
+2) sysctl crypto.fips_enabled
+
+NOTE: 1 indicates enabled, while 0 indicates disabled.
+
+
+2. Enable FIPS mode in user space (default yes)
+File /etc/system-fips to determine if a FIPS module is installed and
+FIPS mode is enabled
+
+1) openssh:
+- sshd
+2019-09-22T12:20:04.631097+00:00 qemux86-64 sshd[437]: FIPS mode initialized
+
+- ssh
+# ssh root@localhost
+FIPS mode initialized
+
+- ssh-keygen
+# ssh-keygen -A
+ssh-keygen: generating new host keys: DSA DSA keys are not allowed in FIPS mode
