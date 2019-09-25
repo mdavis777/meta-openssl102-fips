@@ -27,4 +27,26 @@ EXTRA_OECONF += " \
 EXTRA_OEMAKE += " \
     -I${STAGING_LIBDIR_NATIVE}/ssl/fips-2.0/include \
 "
+do_install_append() {
+    install -d ${D}${libdir}/fipscheck
+}
 
+inherit qemu
+
+pkg_postinst_${PN} () {
+    if [ -n "$D" ]; then
+        if ${@bb.utils.contains('MACHINE_FEATURES', 'qemu-usermode', 'true','false', d)}; then
+            ${@qemu_run_binary(d, '$D', '${bindir}/fipshmac')} \
+                -d $D${libdir}/fipscheck $D${bindir}/fipscheck $D${libdir}/libfipscheck.so.1.2.1 && \
+            ln -s libfipscheck.so.1.2.1.hmac $D${libdir}/fipscheck/libfipscheck.so.1.hmac
+        else
+            $INTERCEPT_DIR/postinst_intercept delay_to_first_boot ${PKG} mlprefix=${MLPREFIX}
+        fi
+    else
+        ${bindir}/fipshmac -d ${libdir}/fipscheck ${bindir}/fipscheck \
+            ${libdir}/libfipscheck.so.1.2.1 && \
+        ln -s libfipscheck.so.1.2.1.hmac ${libdir}/fipscheck/libfipscheck.so.1.hmac
+    fi
+}
+
+FILES_${PN} += "${libdir}/fipscheck"
