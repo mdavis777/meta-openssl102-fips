@@ -6,6 +6,8 @@ DEPENDS += " \
 SRC_URI += " \
     file://0001-openssh-8.0p1-fips.patch \
     file://0001-conditional-enable-fips-mode.patch \
+    file://openssh-6.6p1-ctr-cavstest.patch \
+    file://openssh-6.7p1-kdf-cavs.patch \
 "
 
 do_install_append() {
@@ -39,5 +41,12 @@ pkg_postinst_append_${PN}-sshd () {
         ${bindir}/fipshmac -d ${libdir}/fipscheck ${sbindir}/sshd
     fi
 }
+
+PACKAGES =+ "${PN}-cavs"
+SUMMARY_${PN}-cavs = "CAVS tests for FIPS validation"
+FILES_${PN}-cavs = " \
+    ${libexecdir}/ctr-cavstest \
+    ${libexecdir}/ssh-cavs \
+    ${libexecdir}/ssh-cavs_driver.pl"
 
 FILES_${PN} += "${libdir}/fipscheck"
