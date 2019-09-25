@@ -1,1 +1,2 @@
 kconf non-hardware crypto_fips.cfg
+patch 0001-fips-continuing-without-Jitter-RNG.patch
