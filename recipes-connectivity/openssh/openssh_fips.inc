@@ -5,6 +5,7 @@ DEPENDS += " \
 "
 SRC_URI += " \
     file://0001-openssh-8.0p1-fips.patch \
+    file://0001-conditional-enable-fips-mode.patch \
 "
 
 do_install_append() {
