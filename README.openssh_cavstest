@@ -1,0 +1,28 @@
+1. Install openssh-cavs to images
+$ echo "IMAGE_INSTALL += 'openssh-cavs'" >> conf/local.conf
+$ bitbake <image>
+
+2. Run tests on target
+1) ctr-cavstest
+invocation (all of the following are equal):
+./ctr-cavstest --algo aes128-ctr --key 987212980144b6a632e864031f52dacc --mode encrypt --data a6deca405eef2e8e4609abf3c3ccf4a6
+./ctr-cavstest --algo aes128-ctr --key 987212980144b6a632e864031f52dacc --mode encrypt --data a6deca405eef2e8e4609abf3c3ccf4a6 --iv 00000000000000000000000000000000
+echo -n a6deca405eef2e8e4609abf3c3ccf4a6 | ./ctr-cavstest --algo aes128-ctr --key 987212980144b6a632e864031f52dacc --mode encrypt
+
+$ cd /usr/libexec
+$ ./ctr-cavstest --algo aes128-ctr --key 987212980144b6a632e864031f52dacc --mode encrypt --data a6deca405eef2e8e4609abf3c3ccf4a6
+58E33554D51B0DD7A63F44B22381B1CA
+$ ./ctr-cavstest --algo aes128-ctr --key 987212980144b6a632e864031f52dacc --mode encrypt --data a6deca405eef2e8e4609abf3c3ccf4a6 --iv 00000000000000000000000000000000
+58E33554D51B0DD7A63F44B22381B1CA
+$ echo -n a6deca405eef2e8e4609abf3c3ccf4a6 | ./ctr-cavstest --algo aes128-ctr --key 987212980144b6a632e864031f52dacc --mode encrypt
+58E33554D51B0DD7A63F44B22381B1CA
+
+2) ssh-cavs
+$ cd /usr/libexec
+$ ./ssh-cavs -K 0055d50f2d163cc07cd8a93cc7c3430c30ce786b572c01ad29fec7597000cf8618d664e2ec3dcbc8bb7a1a7eb7ef67f61cdaf291625da879186ac0a5cb27af571b59612d6a6e0627344d846271959fda61c78354aa498773d59762f8ca2d0215ec590d8633de921f920d41e47b3de6ab9a3d0869e1c826d0e4adebf8e3fb646a15dea20a410b44e969f4b791ed6a67f13f1b74234004d5fa5e87eff7abc32d49bbdf44d7b0107e8f10609233b7e2b7eff74a4daf25641de7553975dac6ac1e5117df6f6dbaa1c263d23a6c3e5a3d7d49ae8a828c1e333ac3f85fbbf57b5c1a45be45e43a7be1a4707eac779b8285522d1f531fe23f890fd38a004339932b93eda4 -H d3ab91a850febb417a25d892ec48ed5952c7a5de -s d3ab91a850febb417a25d892ec48ed5952c7a5de -i 8 -e 24 -m 20
+Initial IV (client to server) = 4bb320d1679dfd3a
+Initial IV (server to client) = 43dea6fdf263a308
+Encryption key (client to server) = 13048cc600b9d3cf9095aa6cf8e2ff9cf1c54ca0520c89ed
+Encryption key (server to client) = 1e483c5134e901aa11fc4e0a524e7ec7b75556148a222bb0
+Integrity key (client to server) = ecef63a092b0dcc585bdc757e01b2740af57d640
+Integrity key (server to client) = 7424b05f3c44a72b4ebd281fb71f9cbe7b64d479
