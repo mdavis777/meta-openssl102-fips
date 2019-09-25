@@ -54,3 +54,6 @@ FIPS mode initialized
 - ssh-keygen
 # ssh-keygen -A
 ssh-keygen: generating new host keys: DSA DSA keys are not allowed in FIPS mode
+
+NOTE: Once openssh enables FIPS mode, openssh ptest will fail. The test case
+of openssh does not consider FIPS mode support.
