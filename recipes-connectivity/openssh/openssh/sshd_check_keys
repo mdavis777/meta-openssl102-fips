@@ -71,6 +71,10 @@ for key in ${HOST_KEYS} ; do
         generate_key $key ecdsa
         ;;
     *_ed25519_key)
+        FIPS=/etc/system-fips
+        if [[ -r "$FIPS" ]]; then
+            continue
+        fi
         echo "  generating ssh ED25519 host key..."
         generate_key $key ed25519
         ;;
