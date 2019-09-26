@@ -52,6 +52,12 @@ The easiest way to do this with Wind River Linux is include:
 
     Note: do not include template feature/openssl-fips
 
+Additionally you will need a way to get the openssl-fips module source to
+the target for the build.  Adding ssh/scp is recommended, to add these
+add the following to your local.conf file:
+
+    IMAGE_INSTALL_append = " openssh-ssh openssh-scp"
+
 If you are building with configurations that have security software enabled,
 such as SE Linux, you may be required to boot in a non-enforcing mode to
 follow the steps below.  The configuration options necessary to boot into

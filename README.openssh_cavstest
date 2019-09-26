@@ -1,5 +1,5 @@
 1. Install openssh-cavs to images
-$ echo "IMAGE_INSTALL += 'openssh-cavs'" >> conf/local.conf
+$ echo "IMAGE_INSTALL_append = ' openssh-cavs'" >> conf/local.conf
 $ bitbake <image>
 
 2. Run tests on target
