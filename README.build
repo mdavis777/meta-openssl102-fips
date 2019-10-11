@@ -132,7 +132,7 @@ Building Steps (based on section 4 of the UsersGuide-2.0.pdf):
     prebuilt tar archive.
 
     For Yocto, in your build directory, edit conf/local.conf, add:
-      IMAGE_INSTALL_append = " openssl-fips"
+      IMAGE_INSTALL_append = " openssl-fips-dev"
       OPENSSL_FIPS_ENABLED = "1"
       OPENSSL_FIPS_PREBUILT = "<path>"
 

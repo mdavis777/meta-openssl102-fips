@@ -1,1 +1,1 @@
-IMAGE_INSTALL += "openssl-fips"
+IMAGE_INSTALL += "openssl-fips-dev"
