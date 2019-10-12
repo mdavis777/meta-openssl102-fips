@@ -1,0 +1,93 @@
+From f2cb8bcc556aa1121db7209d433170bd1ab60954 Mon Sep 17 00:00:00 2001
+From: Hongxu Jia <hongxu.jia@windriver.com>
+Date: Sat, 12 Oct 2019 10:49:28 +0800
+Subject: [PATCH] conditionally enable fips
+
+Add export NSS_FORCE_FIPS=1 to force enable fips, and add the same
+macro limitaition to fips enable test, currently we are not ready
+to support nss fips
+
+...
+$ certutil -N -d sql:. --empty-password
+|certutil: function failed: SEC_ERROR_PKCS11_DEVICE_ERROR: A PKCS #11
+module returned CKR_DEVICE_ERROR, indicating that a problem has occurred
+with the token or slot.
+
+$rpm -h
+|error: Failed to initialize NSS library
+...
+
+Upstream-Status: Inappropriate [oe specific]
+
+Signed-off-by: Hongxu Jia <hongxu.jia@windriver.com>
+---
+ nss/coreconf/config.mk       | 2 ++
+ nss/lib/freebl/nsslowhash.c  | 2 +-
+ nss/lib/pk11wrap/pk11util.c  | 2 +-
+ nss/lib/sysinit/nsssysinit.c | 4 ++++
+ 4 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/nss/coreconf/config.mk b/nss/coreconf/config.mk
+index 60a0841..dcca87f 100644
+--- a/nss/coreconf/config.mk
++++ b/nss/coreconf/config.mk
+@@ -179,6 +179,8 @@ endif
+ # executing the startup tests at library load time.
+ ifndef NSS_FORCE_FIPS
+ DEFINES += -DNSS_NO_INIT_SUPPORT
++else
++DEFINES += -DNSS_FORCE_FIPS
+ endif
+ 
+ ifdef NSS_SEED_ONLY_DEV_URANDOM
+diff --git a/nss/lib/freebl/nsslowhash.c b/nss/lib/freebl/nsslowhash.c
+index 22f9781..baf71c3 100644
+--- a/nss/lib/freebl/nsslowhash.c
++++ b/nss/lib/freebl/nsslowhash.c
+@@ -26,7 +26,7 @@ struct NSSLOWHASHContextStr {
+ static int
+ nsslow_GetFIPSEnabled(void)
+ {
+-#ifdef LINUX
++#if defined LINUX && defined NSS_FORCE_FIPS
+     FILE *f;
+     char d;
+     size_t size;
+diff --git a/nss/lib/pk11wrap/pk11util.c b/nss/lib/pk11wrap/pk11util.c
+index 502c4d0..cd86270 100644
+--- a/nss/lib/pk11wrap/pk11util.c
++++ b/nss/lib/pk11wrap/pk11util.c
+@@ -98,7 +98,7 @@ SECMOD_Shutdown()
+ int
+ secmod_GetSystemFIPSEnabled(void)
+ {
+-#ifdef LINUX
++#if defined LINUX && defined NSS_FORCE_FIPS
+     FILE *f;
+     char d;
+     size_t size;
+diff --git a/nss/lib/sysinit/nsssysinit.c b/nss/lib/sysinit/nsssysinit.c
+index bd0fac2..5c09e8d 100644
+--- a/nss/lib/sysinit/nsssysinit.c
++++ b/nss/lib/sysinit/nsssysinit.c
+@@ -168,6 +168,7 @@ getFIPSEnv(void)
+ static PRBool
+ getFIPSMode(void)
+ {
++#ifdef NSS_FORCE_FIPS
+     FILE *f;
+     char d;
+     size_t size;
+@@ -186,6 +187,9 @@ getFIPSMode(void)
+     if (d != '1')
+         return PR_FALSE;
+     return PR_TRUE;
++#else
++    return PR_FALSE;
++#endif
+ }
+ 
+ #define NSS_DEFAULT_FLAGS "flags=readonly"
+-- 
+2.7.4
+
