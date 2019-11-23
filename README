@@ -22,6 +22,11 @@ information on the "trusted path" and "secure installation" requirements.
 See README.build for information on building the components, and making them
 available for re-use.
 
+Note: According to information from NIST, FIPS-140-2 Validation submissions
+will end September 22, 2021.  FIPS-140-2 Certifications will end September
+22, 2026.  Due to this, it is expected updates will be minimal after 2021 and
+most likely the layer will be EOL after 2026.
+
 
 Dependencies
 ------------
