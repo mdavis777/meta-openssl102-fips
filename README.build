@@ -44,7 +44,7 @@ to image [3]
 [2] git://git.yoctoproject.org/meta-openssl102
     Manually set 1.0.2% to openssl preferred version
     echo "PREFERRED_VERSION_openssl = '1.0.2%'" >> conf/local.conf
-[3] echo "IMAGE_INSTALL += 'packagegroup-core-buildessential'" >> conf/local.conf
+[3] echo "IMAGE_INSTALL_append = ' packagegroup-core-buildessential'" >> conf/local.conf
 
 The easiest way to do this with Wind River Linux is include:
 

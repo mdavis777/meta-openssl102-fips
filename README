@@ -42,7 +42,7 @@ compliant.  See the README.build file for instructions on how to build them.
 Be aware, building them per the instructions does not mean they are certified
 you must consult the User Guide and possibly a certification lab.
 
-One the modules are placed somewhere, you will need to instruct the system
+Once the modules are placed somewhere, you will need to instruct the system
 to enable OpenSSL FIPS mode, as well as tell the system where your binaries
 are located.
 
