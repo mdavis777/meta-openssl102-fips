@@ -26,11 +26,11 @@ Signed-off-by: Hongxu Jia <hongxu.jia@windriver.com>
  create mode 100644 ssh-cavs.c
  create mode 100644 ssh-cavs_driver.pl
 
-diff --git a/Makefile.in b/Makefile.in
-index cb34681..368097e 100644
---- a/Makefile.in
-+++ b/Makefile.in
-@@ -24,6 +24,7 @@ ASKPASS_PROGRAM=$(libexecdir)/ssh-askpass
+Index: git/Makefile.in
+===================================================================
+--- git.orig/Makefile.in
++++ git/Makefile.in
+@@ -24,6 +24,7 @@ ASKPASS_PROGRAM=$(libexecdir)/ssh-askpas
  SFTP_SERVER=$(libexecdir)/sftp-server
  SSH_KEYSIGN=$(libexecdir)/ssh-keysign
  CTR_CAVSTEST=$(libexecdir)/ctr-cavstest
@@ -47,7 +47,7 @@ index cb34681..368097e 100644
  
  XMSS_OBJS=\
  	ssh-xmss.o \
-@@ -197,6 +198,9 @@ ssh-pkcs11-helper$(EXEEXT): $(LIBCOMPAT) libssh.a ssh-pkcs11-helper.o ssh-pkcs11
+@@ -196,6 +197,9 @@ ssh-pkcs11-helper$(EXEEXT): $(LIBCOMPAT)
  ctr-cavstest$(EXEEXT): $(LIBCOMPAT) libssh.a ctr-cavstest.o
  	$(LD) -o $@ ctr-cavstest.o $(LDFLAGS) -lssh -lopenbsd-compat -lssh -lfipscheck $(LIBS)
  
@@ -57,7 +57,7 @@ index cb34681..368097e 100644
  ssh-keyscan$(EXEEXT): $(LIBCOMPAT) libssh.a ssh-keyscan.o
  	$(LD) -o $@ ssh-keyscan.o $(LDFLAGS) -lssh -lopenbsd-compat -lssh -lfipscheck $(LIBS)
  
-@@ -348,6 +352,8 @@ install-files:
+@@ -347,6 +351,8 @@ install-files:
  	$(INSTALL) -m 0755 $(STRIP_OPT) sshd$(EXEEXT) $(DESTDIR)$(sbindir)/sshd$(EXEEXT)
  	$(INSTALL) -m 4711 $(STRIP_OPT) ssh-keysign$(EXEEXT) $(DESTDIR)$(SSH_KEYSIGN)$(EXEEXT)
  	$(INSTALL) -m 0755 $(STRIP_OPT) ctr-cavstest$(EXEEXT) $(DESTDIR)$(libexecdir)/ctr-cavstest$(EXEEXT)
@@ -66,11 +66,10 @@ index cb34681..368097e 100644
  	$(INSTALL) -m 0755 $(STRIP_OPT) ssh-pkcs11-helper$(EXEEXT) $(DESTDIR)$(SSH_PKCS11_HELPER)$(EXEEXT)
  	$(INSTALL) -m 0755 $(STRIP_OPT) sftp$(EXEEXT) $(DESTDIR)$(bindir)/sftp$(EXEEXT)
  	$(INSTALL) -m 0755 $(STRIP_OPT) sftp-server$(EXEEXT) $(DESTDIR)$(SFTP_SERVER)$(EXEEXT)
-diff --git a/ssh-cavs.c b/ssh-cavs.c
-new file mode 100644
-index 0000000..b74ae7f
+Index: git/ssh-cavs.c
+===================================================================
 --- /dev/null
-+++ b/ssh-cavs.c
++++ git/ssh-cavs.c
 @@ -0,0 +1,387 @@
 +/*
 + * Copyright (C) 2015, Stephan Mueller <smueller@chronox.de>
@@ -459,11 +458,10 @@ index 0000000..b74ae7f
 +	return ret;
 +
 +}
-diff --git a/ssh-cavs_driver.pl b/ssh-cavs_driver.pl
-new file mode 100644
-index 0000000..6ed8f26
+Index: git/ssh-cavs_driver.pl
+===================================================================
 --- /dev/null
-+++ b/ssh-cavs_driver.pl
++++ git/ssh-cavs_driver.pl
 @@ -0,0 +1,184 @@
 +#!/usr/bin/env perl
 +#
@@ -649,6 +647,3 @@ index 0000000..6ed8f26
 +# Call it
 +main();
 +1;
--- 
-2.7.4
-
