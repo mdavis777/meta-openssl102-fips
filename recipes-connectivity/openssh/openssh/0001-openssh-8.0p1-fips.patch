@@ -29,11 +29,11 @@ Signed-off-by: Hongxu Jia <hongxu.jia@windriver.com>
  sshkey.c                 |  4 ++++
  16 files changed, 176 insertions(+), 30 deletions(-)
 
-diff --git a/Makefile.in b/Makefile.in
-index 6f001bb..ddd1804 100644
---- a/Makefile.in
-+++ b/Makefile.in
-@@ -170,31 +170,31 @@ libssh.a: $(LIBSSH_OBJS)
+Index: git/Makefile.in
+===================================================================
+--- git.orig/Makefile.in
++++ git/Makefile.in
+@@ -169,31 +169,31 @@ libssh.a: $(LIBSSH_OBJS)
  	$(RANLIB) $@
  
  ssh$(EXEEXT): $(LIBCOMPAT) libssh.a $(SSHOBJS)
@@ -45,7 +45,8 @@ index 6f001bb..ddd1804 100644
 +	$(LD) -o $@ $(SSHDOBJS) $(LDFLAGS) -lssh -lopenbsd-compat -lfipscheck $(SSHDLIBS) $(LIBS) $(GSSLIBS) $(K5LIBS)
  
  scp$(EXEEXT): $(LIBCOMPAT) libssh.a scp.o progressmeter.o
- 	$(LD) -o $@ scp.o progressmeter.o $(LDFLAGS) -lssh -lopenbsd-compat $(LIBS)
+-	$(LD) -o $@ scp.o progressmeter.o $(LDFLAGS) -lssh -lopenbsd-compat $(LIBS)
++	$(LD) -o $@ scp.o progressmeter.o $(LDFLAGS) -lssh -lopenbsd-compat -lfipscheck $(LIBS)
  
  ssh-add$(EXEEXT): $(LIBCOMPAT) libssh.a ssh-add.o
 -	$(LD) -o $@ ssh-add.o $(LDFLAGS) -lssh -lopenbsd-compat $(LIBS)
@@ -59,7 +60,7 @@ index 6f001bb..ddd1804 100644
 -	$(LD) -o $@ ssh-keygen.o $(LDFLAGS) -lssh -lopenbsd-compat $(LIBS)
 +	$(LD) -o $@ ssh-keygen.o $(LDFLAGS) -lssh -lopenbsd-compat -lfipscheck $(LIBS)
  
- ssh-keysign$(EXEEXT): $(LIBCOMPAT) libssh.a ssh-keysign.o readconf.o uidswap.o compat.o
+ ssh-keysign$(EXEEXT): $(LIBCOMPAT) libssh.a ssh-keysign.o readconf.o uidswap.o
 -	$(LD) -o $@ ssh-keysign.o readconf.o uidswap.o $(LDFLAGS) -lssh -lopenbsd-compat $(LIBS)
 +	$(LD) -o $@ ssh-keysign.o readconf.o uidswap.o $(LDFLAGS) -lssh -lopenbsd-compat -lfipscheck $(LIBS)
  
@@ -72,10 +73,10 @@ index 6f001bb..ddd1804 100644
  
  sftp-server$(EXEEXT): $(LIBCOMPAT) libssh.a sftp.o sftp-common.o sftp-server.o sftp-server-main.o
  	$(LD) -o $@ sftp-server.o sftp-common.o sftp-server-main.o $(LDFLAGS) -lssh -lopenbsd-compat $(LIBS)
-diff --git a/cipher-ctr.c b/cipher-ctr.c
-index 32771f2..74fac3b 100644
---- a/cipher-ctr.c
-+++ b/cipher-ctr.c
+Index: git/cipher-ctr.c
+===================================================================
+--- git.orig/cipher-ctr.c
++++ git/cipher-ctr.c
 @@ -138,7 +138,8 @@ evp_aes_128_ctr(void)
  	aes_ctr.do_cipher = ssh_aes_ctr;
  #ifndef SSH_OLD_EVP
@@ -86,11 +87,11 @@ index 32771f2..74fac3b 100644
  #endif
  	return (&aes_ctr);
  }
-diff --git a/clientloop.c b/clientloop.c
-index 086c0df..0b308d4 100644
---- a/clientloop.c
-+++ b/clientloop.c
-@@ -2036,7 +2036,8 @@ key_accepted_by_hostkeyalgs(const struct sshkey *key)
+Index: git/clientloop.c
+===================================================================
+--- git.orig/clientloop.c
++++ git/clientloop.c
+@@ -1988,7 +1988,8 @@ key_accepted_by_hostkeyalgs(const struct
  {
  	const char *ktype = sshkey_ssh_name(key);
  	const char *hostkeyalgs = options.hostkeyalgorithms != NULL ?
@@ -100,11 +101,11 @@ index 086c0df..0b308d4 100644
  
  	if (key == NULL || key->type == KEY_UNSPEC)
  		return 0;
-diff --git a/dh.c b/dh.c
-index a98d39e..92e800a 100644
---- a/dh.c
-+++ b/dh.c
-@@ -152,6 +152,12 @@ choose_dh(int min, int wantbits, int max)
+Index: git/dh.c
+===================================================================
+--- git.orig/dh.c
++++ git/dh.c
+@@ -152,6 +152,12 @@ choose_dh(int min, int wantbits, int max
  	int best, bestcount, which, linenum;
  	struct dhgroup dhg;
  
@@ -117,7 +118,7 @@ index a98d39e..92e800a 100644
  	if ((f = fopen(_PATH_DH_MODULI, "r")) == NULL) {
  		logit("WARNING: could not open %s (%s), using fixed modulus",
  		    _PATH_DH_MODULI, strerror(errno));
-@@ -489,4 +495,38 @@ dh_estimate(int bits)
+@@ -487,4 +493,38 @@ dh_estimate(int bits)
  	return 8192;
  }
  
@@ -156,10 +157,10 @@ index a98d39e..92e800a 100644
 +}
 +
  #endif /* WITH_OPENSSL */
-diff --git a/dh.h b/dh.h
-index adb643a..5d1cad5 100644
---- a/dh.h
-+++ b/dh.h
+Index: git/dh.h
+===================================================================
+--- git.orig/dh.h
++++ git/dh.h
 @@ -43,6 +43,7 @@ DH	*dh_new_group_fallback(int);
  
  int	 dh_gen_key(DH *, int);
@@ -168,11 +169,11 @@ index adb643a..5d1cad5 100644
  
  u_int	 dh_estimate(int);
  
-diff --git a/kex.c b/kex.c
-index 34808b5..b356a26 100644
---- a/kex.c
-+++ b/kex.c
-@@ -161,7 +161,10 @@ kex_names_valid(const char *names)
+Index: git/kex.c
+===================================================================
+--- git.orig/kex.c
++++ git/kex.c
+@@ -153,7 +153,10 @@ kex_names_valid(const char *names)
  	for ((p = strsep(&cp, ",")); p && *p != '\0';
  	    (p = strsep(&cp, ","))) {
  		if (kex_alg_by_name(p) == NULL) {
@@ -184,10 +185,10 @@ index 34808b5..b356a26 100644
  			free(s);
  			return 0;
  		}
-diff --git a/kexgexc.c b/kexgexc.c
-index 1c65b8a..b6b25bf 100644
---- a/kexgexc.c
-+++ b/kexgexc.c
+Index: git/kexgexc.c
+===================================================================
+--- git.orig/kexgexc.c
++++ git/kexgexc.c
 @@ -28,6 +28,7 @@
  
  #ifdef WITH_OPENSSL
@@ -196,7 +197,7 @@ index 1c65b8a..b6b25bf 100644
  #include <sys/types.h>
  
  #include <openssl/dh.h>
-@@ -113,6 +114,10 @@ input_kex_dh_gex_group(int type, u_int32_t seq, struct ssh *ssh)
+@@ -118,6 +119,10 @@ input_kex_dh_gex_group(int type, u_int32
  		r = SSH_ERR_ALLOC_FAIL;
  		goto out;
  	}
@@ -207,11 +208,11 @@ index 1c65b8a..b6b25bf 100644
  	p = g = NULL; /* belong to kex->dh now */
  
  	/* generate and send 'e', client DH public key */
-diff --git a/myproposal.h b/myproposal.h
-index f167298..812d9a2 100644
---- a/myproposal.h
-+++ b/myproposal.h
-@@ -111,6 +111,14 @@
+Index: git/myproposal.h
+===================================================================
+--- git.orig/myproposal.h
++++ git/myproposal.h
+@@ -116,6 +116,14 @@
  	"rsa-sha2-256," \
  	"ssh-rsa"
  
@@ -226,7 +227,7 @@ index f167298..812d9a2 100644
  /* the actual algorithms */
  
  #define KEX_SERVER_ENCRYPT \
-@@ -134,6 +142,38 @@
+@@ -139,6 +147,38 @@
  
  #define KEX_CLIENT_MAC KEX_SERVER_MAC
  
@@ -265,14 +266,14 @@ index f167298..812d9a2 100644
  /* Not a KEX value, but here so all the algorithm defaults are together */
  #define	SSH_ALLOWED_CA_SIGALGS	\
  	"ecdsa-sha2-nistp256," \
-diff --git a/readconf.c b/readconf.c
-index ec497e7..1f1a16d 100644
---- a/readconf.c
-+++ b/readconf.c
-@@ -2116,18 +2116,19 @@ fill_default_options(Options * options)
+Index: git/readconf.c
+===================================================================
+--- git.orig/readconf.c
++++ git/readconf.c
+@@ -2077,17 +2077,18 @@ fill_default_options(Options * options)
+ 	all_mac = mac_alg_list(',');
  	all_kex = kex_alg_list(',');
  	all_key = sshkey_alg_list(0, 0, 1, ',');
- 	all_sig = sshkey_alg_list(0, 1, 1, ',');
 -#define ASSEMBLE(what, defaults, all) \
 +#define ASSEMBLE(what, defaults, fips_defaults, all) \
  	do { \
@@ -282,26 +283,24 @@ index ec497e7..1f1a16d 100644
 +		    all)) != 0) \
  			fatal("%s: %s: %s", __func__, #what, ssh_err(r)); \
  	} while (0)
--	ASSEMBLE(ciphers, KEX_CLIENT_ENCRYPT, all_cipher);
--	ASSEMBLE(macs, KEX_CLIENT_MAC, all_mac);
--	ASSEMBLE(kex_algorithms, KEX_CLIENT_KEX, all_kex);
+-	ASSEMBLE(ciphers, KEX_SERVER_ENCRYPT, all_cipher);
+-	ASSEMBLE(macs, KEX_SERVER_MAC, all_mac);
+-	ASSEMBLE(kex_algorithms, KEX_SERVER_KEX, all_kex);
 -	ASSEMBLE(hostbased_key_types, KEX_DEFAULT_PK_ALG, all_key);
 -	ASSEMBLE(pubkey_key_types, KEX_DEFAULT_PK_ALG, all_key);
--	ASSEMBLE(ca_sign_algorithms, SSH_ALLOWED_CA_SIGALGS, all_sig);
 +	ASSEMBLE(ciphers, KEX_CLIENT_ENCRYPT, KEX_FIPS_ENCRYPT, all_cipher);
 +	ASSEMBLE(macs, KEX_CLIENT_MAC, KEX_FIPS_MAC, all_mac);
 +	ASSEMBLE(kex_algorithms, KEX_CLIENT_KEX, KEX_DEFAULT_KEX_FIPS, all_kex);
 +	ASSEMBLE(hostbased_key_types, KEX_DEFAULT_PK_ALG, KEX_FIPS_PK_ALG, all_key);
 +	ASSEMBLE(pubkey_key_types, KEX_DEFAULT_PK_ALG, KEX_FIPS_PK_ALG, all_key);
-+	ASSEMBLE(ca_sign_algorithms, SSH_ALLOWED_CA_SIGALGS, KEX_FIPS_PK_ALG, all_sig);
  #undef ASSEMBLE
  	free(all_cipher);
  	free(all_mac);
-diff --git a/sandbox-seccomp-filter.c b/sandbox-seccomp-filter.c
-index 5edbc69..3c40136 100644
---- a/sandbox-seccomp-filter.c
-+++ b/sandbox-seccomp-filter.c
-@@ -137,6 +137,9 @@ static const struct sock_filter preauth_insns[] = {
+Index: git/sandbox-seccomp-filter.c
+===================================================================
+--- git.orig/sandbox-seccomp-filter.c
++++ git/sandbox-seccomp-filter.c
+@@ -137,6 +137,9 @@ static const struct sock_filter preauth_
  #ifdef __NR_open
  	SC_DENY(__NR_open, EACCES),
  #endif
@@ -311,14 +310,14 @@ index 5edbc69..3c40136 100644
  #ifdef __NR_openat
  	SC_DENY(__NR_openat, EACCES),
  #endif
-diff --git a/servconf.c b/servconf.c
-index ffac5d2..7ad0e4e 100644
---- a/servconf.c
-+++ b/servconf.c
-@@ -200,18 +200,19 @@ assemble_algorithms(ServerOptions *o)
+Index: git/servconf.c
+===================================================================
+--- git.orig/servconf.c
++++ git/servconf.c
+@@ -198,17 +198,18 @@ assemble_algorithms(ServerOptions *o)
+ 	all_mac = mac_alg_list(',');
  	all_kex = kex_alg_list(',');
  	all_key = sshkey_alg_list(0, 0, 1, ',');
- 	all_sig = sshkey_alg_list(0, 1, 1, ',');
 -#define ASSEMBLE(what, defaults, all) \
 +#define ASSEMBLE(what, defaults, fips_defaults, all) \
  	do { \
@@ -333,22 +332,20 @@ index ffac5d2..7ad0e4e 100644
 -	ASSEMBLE(hostkeyalgorithms, KEX_DEFAULT_PK_ALG, all_key);
 -	ASSEMBLE(hostbased_key_types, KEX_DEFAULT_PK_ALG, all_key);
 -	ASSEMBLE(pubkey_key_types, KEX_DEFAULT_PK_ALG, all_key);
--	ASSEMBLE(ca_sign_algorithms, SSH_ALLOWED_CA_SIGALGS, all_sig);
 +	ASSEMBLE(ciphers, KEX_SERVER_ENCRYPT, KEX_FIPS_ENCRYPT, all_cipher);
 +	ASSEMBLE(macs, KEX_SERVER_MAC, KEX_FIPS_MAC, all_mac);
 +	ASSEMBLE(kex_algorithms, KEX_SERVER_KEX, KEX_DEFAULT_KEX_FIPS, all_kex);
 +	ASSEMBLE(hostkeyalgorithms, KEX_DEFAULT_PK_ALG, KEX_FIPS_PK_ALG, all_key);
 +	ASSEMBLE(hostbased_key_types, KEX_DEFAULT_PK_ALG, KEX_FIPS_PK_ALG, all_key);
 +	ASSEMBLE(pubkey_key_types, KEX_DEFAULT_PK_ALG, KEX_FIPS_PK_ALG, all_key);
-+	ASSEMBLE(ca_sign_algorithms, SSH_ALLOWED_CA_SIGALGS, KEX_FIPS_PK_ALG, all_sig);
  #undef ASSEMBLE
  	free(all_cipher);
  	free(all_mac);
-diff --git a/ssh-keygen.c b/ssh-keygen.c
-index 3898b28..f3f4975 100644
---- a/ssh-keygen.c
-+++ b/ssh-keygen.c
-@@ -199,6 +199,12 @@ type_bits_valid(int type, const char *name, u_int32_t *bitsp)
+Index: git/ssh-keygen.c
+===================================================================
+--- git.orig/ssh-keygen.c
++++ git/ssh-keygen.c
+@@ -230,6 +230,12 @@ type_bits_valid(int type, const char *na
  	    OPENSSL_DSA_MAX_MODULUS_BITS : OPENSSL_RSA_MAX_MODULUS_BITS;
  	if (*bitsp > maxbits)
  		fatal("key bits exceeds maximum %d", maxbits);
@@ -361,10 +358,10 @@ index 3898b28..f3f4975 100644
  	switch (type) {
  	case KEY_DSA:
  		if (*bitsp != 1024)
-diff --git a/ssh.c b/ssh.c
-index 91e7c35..1cf14f6 100644
---- a/ssh.c
-+++ b/ssh.c
+Index: git/ssh.c
+===================================================================
+--- git.orig/ssh.c
++++ git/ssh.c
 @@ -76,6 +76,8 @@
  #include <openssl/evp.h>
  #include <openssl/err.h>
@@ -374,7 +371,7 @@ index 91e7c35..1cf14f6 100644
  #include "openbsd-compat/openssl-compat.h"
  #include "openbsd-compat/sys-queue.h"
  
-@@ -600,6 +602,16 @@ main(int ac, char **av)
+@@ -598,6 +600,16 @@ main(int ac, char **av)
  	sanitise_stdfd();
  
  	__progname = ssh_get_progname(av[0]);
@@ -391,9 +388,9 @@ index 91e7c35..1cf14f6 100644
  
  #ifndef HAVE_SETPROCTITLE
  	/* Prepare for later setproctitle emulation */
-@@ -614,6 +626,10 @@ main(int ac, char **av)
- 
- 	seed_rng();
+@@ -610,6 +622,10 @@ main(int ac, char **av)
+ 	av = saved_av;
+ #endif
  
 +	if (FIPS_mode()) {
 +		logit("FIPS mode initialized");
@@ -402,10 +399,10 @@ index 91e7c35..1cf14f6 100644
  	/*
  	 * Discard other fds that are hanging around. These can cause problem
  	 * with backgrounded ssh processes started by ControlPersist.
-diff --git a/sshconnect2.c b/sshconnect2.c
-index dffee90..28b2554 100644
---- a/sshconnect2.c
-+++ b/sshconnect2.c
+Index: git/sshconnect2.c
+===================================================================
+--- git.orig/sshconnect2.c
++++ git/sshconnect2.c
 @@ -44,6 +44,8 @@
  #include <vis.h>
  #endif
@@ -415,7 +412,7 @@ index dffee90..28b2554 100644
  #include "openbsd-compat/sys-queue.h"
  
  #include "xmalloc.h"
-@@ -117,7 +119,8 @@ order_hostkeyalgs(char *host, struct sockaddr *hostaddr, u_short port)
+@@ -117,7 +119,8 @@ order_hostkeyalgs(char *host, struct soc
  	for (i = 0; i < options.num_system_hostfiles; i++)
  		load_hostkeys(hostkeys, hostname, options.system_hostfiles[i]);
  
@@ -425,7 +422,7 @@ index dffee90..28b2554 100644
  	maxlen = strlen(avail) + 1;
  	first = xmalloc(maxlen);
  	last = xmalloc(maxlen);
-@@ -179,14 +182,16 @@ ssh_kex2(struct ssh *ssh, char *host, struct sockaddr *hostaddr, u_short port)
+@@ -180,14 +183,16 @@ ssh_kex2(char *host, struct sockaddr *ho
  	if (options.hostkeyalgorithms != NULL) {
  		all_key = sshkey_alg_list(0, 0, 1, ',');
  		if (kex_assemble_names(&options.hostkeyalgorithms,
@@ -444,10 +441,10 @@ index dffee90..28b2554 100644
  		/* Prefer algorithms that we already have keys for */
  		myproposal[PROPOSAL_SERVER_HOST_KEY_ALGS] =
  		    compat_pkalg_proposal(
-diff --git a/sshd.c b/sshd.c
-index a3c1975..bf25d76 100644
---- a/sshd.c
-+++ b/sshd.c
+Index: git/sshd.c
+===================================================================
+--- git.orig/sshd.c
++++ git/sshd.c
 @@ -66,6 +66,7 @@
  #include <grp.h>
  #include <pwd.h>
@@ -465,7 +462,7 @@ index a3c1975..bf25d76 100644
  #include "openbsd-compat/openssl-compat.h"
  #endif
  
-@@ -1447,6 +1450,18 @@ main(int ac, char **av)
+@@ -1491,6 +1494,18 @@ main(int ac, char **av)
  #endif
  	__progname = ssh_get_progname(av[0]);
  
@@ -484,7 +481,7 @@ index a3c1975..bf25d76 100644
  	/* Save argv. Duplicate so setproctitle emulation doesn't clobber it */
  	saved_argc = ac;
  	rexec_argc = ac;
-@@ -1905,6 +1920,10 @@ main(int ac, char **av)
+@@ -1940,6 +1955,10 @@ main(int ac, char **av)
  	/* Reinitialize the log (because of the fork above). */
  	log_init(__progname, options.log_level, options.log_facility, log_stderr);
  
@@ -495,10 +492,10 @@ index a3c1975..bf25d76 100644
  	/* Chdir to the root directory so that the current disk can be
  	   unmounted if desired. */
  	if (chdir("/") == -1)
-diff --git a/sshkey.c b/sshkey.c
-index ad19577..18906cb 100644
---- a/sshkey.c
-+++ b/sshkey.c
+Index: git/sshkey.c
+===================================================================
+--- git.orig/sshkey.c
++++ git/sshkey.c
 @@ -34,6 +34,7 @@
  #include <openssl/evp.h>
  #include <openssl/err.h>
@@ -515,7 +512,7 @@ index ad19577..18906cb 100644
  
  #include "xmss_fast.h"
  
-@@ -1481,6 +1483,8 @@ rsa_generate_private_key(u_int bits, RSA **rsap)
+@@ -1489,6 +1491,8 @@ rsa_generate_private_key(u_int bits, RSA
  	}
  	if (!BN_set_word(f4, RSA_F4) ||
  	    !RSA_generate_key_ex(private, bits, f4, NULL)) {
@@ -524,6 +521,3 @@ index ad19577..18906cb 100644
  		ret = SSH_ERR_LIBCRYPTO_ERROR;
  		goto out;
  	}
--- 
-2.7.4
-

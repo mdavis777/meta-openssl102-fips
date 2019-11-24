@@ -27,10 +27,10 @@ Signed-off-by: Hongxu Jia <hongxu.jia@windriver.com>
  nss/lib/sysinit/nsssysinit.c | 4 ++++
  4 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/nss/coreconf/config.mk b/nss/coreconf/config.mk
-index 60a0841..dcca87f 100644
---- a/nss/coreconf/config.mk
-+++ b/nss/coreconf/config.mk
+Index: nss-3.39/nss/coreconf/config.mk
+===================================================================
+--- nss-3.39.orig/nss/coreconf/config.mk
++++ nss-3.39/nss/coreconf/config.mk
 @@ -179,6 +179,8 @@ endif
  # executing the startup tests at library load time.
  ifndef NSS_FORCE_FIPS
@@ -40,10 +40,10 @@ index 60a0841..dcca87f 100644
  endif
  
  ifdef NSS_SEED_ONLY_DEV_URANDOM
-diff --git a/nss/lib/freebl/nsslowhash.c b/nss/lib/freebl/nsslowhash.c
-index 22f9781..baf71c3 100644
---- a/nss/lib/freebl/nsslowhash.c
-+++ b/nss/lib/freebl/nsslowhash.c
+Index: nss-3.39/nss/lib/freebl/nsslowhash.c
+===================================================================
+--- nss-3.39.orig/nss/lib/freebl/nsslowhash.c
++++ nss-3.39/nss/lib/freebl/nsslowhash.c
 @@ -26,7 +26,7 @@ struct NSSLOWHASHContextStr {
  static int
  nsslow_GetFIPSEnabled(void)
@@ -53,24 +53,11 @@ index 22f9781..baf71c3 100644
      FILE *f;
      char d;
      size_t size;
-diff --git a/nss/lib/pk11wrap/pk11util.c b/nss/lib/pk11wrap/pk11util.c
-index 502c4d0..cd86270 100644
---- a/nss/lib/pk11wrap/pk11util.c
-+++ b/nss/lib/pk11wrap/pk11util.c
-@@ -98,7 +98,7 @@ SECMOD_Shutdown()
- int
- secmod_GetSystemFIPSEnabled(void)
- {
--#ifdef LINUX
-+#if defined LINUX && defined NSS_FORCE_FIPS
-     FILE *f;
-     char d;
-     size_t size;
-diff --git a/nss/lib/sysinit/nsssysinit.c b/nss/lib/sysinit/nsssysinit.c
-index bd0fac2..5c09e8d 100644
---- a/nss/lib/sysinit/nsssysinit.c
-+++ b/nss/lib/sysinit/nsssysinit.c
-@@ -168,6 +168,7 @@ getFIPSEnv(void)
+Index: nss-3.39/nss/lib/sysinit/nsssysinit.c
+===================================================================
+--- nss-3.39.orig/nss/lib/sysinit/nsssysinit.c
++++ nss-3.39/nss/lib/sysinit/nsssysinit.c
+@@ -151,6 +151,7 @@ getFIPSEnv(void)
  static PRBool
  getFIPSMode(void)
  {
@@ -78,7 +65,7 @@ index bd0fac2..5c09e8d 100644
      FILE *f;
      char d;
      size_t size;
-@@ -186,6 +187,9 @@ getFIPSMode(void)
+@@ -169,6 +170,9 @@ getFIPSMode(void)
      if (d != '1')
          return PR_FALSE;
      return PR_TRUE;
@@ -87,7 +74,4 @@ index bd0fac2..5c09e8d 100644
 +#endif
  }
  
- #define NSS_DEFAULT_FLAGS "flags=readonly"
--- 
-2.7.4
-
+ #else
