@@ -1,7 +1,7 @@
-From 210d15fd146ff7037f03fff5e0ba6fcf0bfde683 Mon Sep 17 00:00:00 2001
+From 6b6e0f7d4a517378a8d53b84fbef2cfc78c42f46 Mon Sep 17 00:00:00 2001
 From: Hongxu Jia <hongxu.jia@windriver.com>
-Date: Sun, 22 Sep 2019 21:40:51 +0800
-Subject: [PATCH 2/2] add KDF CAVS test driver
+Date: Sat, 21 Dec 2019 13:08:52 +0800
+Subject: [PATCH] add KDF CAVS test driver
 
 Original submission to Fedora, see:
    https://lists.fedoraproject.org/pipermail/scm-commits/Week-of-Mon-20150216/1514788.html
@@ -17,6 +17,7 @@ This is the makefile.in change for the normal configuration.
 Signed-off-by: Mark Hatle <mark.hatle@windriver.com>
 
 Upstream-Status: Inappropriate [oe specific]
+
 Signed-off-by: Hongxu Jia <hongxu.jia@windriver.com>
 ---
  Makefile.in        |   8 +-
@@ -27,7 +28,7 @@ Signed-off-by: Hongxu Jia <hongxu.jia@windriver.com>
  create mode 100644 ssh-cavs_driver.pl
 
 diff --git a/Makefile.in b/Makefile.in
-index cb34681..368097e 100644
+index 1d6e298..be28411 100644
 --- a/Makefile.in
 +++ b/Makefile.in
 @@ -24,6 +24,7 @@ ASKPASS_PROGRAM=$(libexecdir)/ssh-askpass
@@ -47,7 +48,7 @@ index cb34681..368097e 100644
  
  XMSS_OBJS=\
  	ssh-xmss.o \
-@@ -197,6 +198,9 @@ ssh-pkcs11-helper$(EXEEXT): $(LIBCOMPAT) libssh.a ssh-pkcs11-helper.o ssh-pkcs11
+@@ -202,6 +203,9 @@ ssh-pkcs11-helper$(EXEEXT): $(LIBCOMPAT) libssh.a ssh-pkcs11-helper.o ssh-pkcs11
  ctr-cavstest$(EXEEXT): $(LIBCOMPAT) libssh.a ctr-cavstest.o
  	$(LD) -o $@ ctr-cavstest.o $(LDFLAGS) -lssh -lopenbsd-compat -lssh -lfipscheck $(LIBS)
  
@@ -55,9 +56,9 @@ index cb34681..368097e 100644
 +	$(LD) -o $@ ssh-cavs.o $(LDFLAGS) -lssh -lopenbsd-compat $(LIBS)
 +
  ssh-keyscan$(EXEEXT): $(LIBCOMPAT) libssh.a ssh-keyscan.o
- 	$(LD) -o $@ ssh-keyscan.o $(LDFLAGS) -lssh -lopenbsd-compat -lssh -lfipscheck $(LIBS)
+ 	$(LD) -o $@ ssh-keyscan.o $(LDFLAGS) -lssh -lopenbsd-compat -lfipscheck -lssh $(LIBS)
  
-@@ -348,6 +352,8 @@ install-files:
+@@ -353,6 +357,8 @@ install-files:
  	$(INSTALL) -m 0755 $(STRIP_OPT) sshd$(EXEEXT) $(DESTDIR)$(sbindir)/sshd$(EXEEXT)
  	$(INSTALL) -m 4711 $(STRIP_OPT) ssh-keysign$(EXEEXT) $(DESTDIR)$(SSH_KEYSIGN)$(EXEEXT)
  	$(INSTALL) -m 0755 $(STRIP_OPT) ctr-cavstest$(EXEEXT) $(DESTDIR)$(libexecdir)/ctr-cavstest$(EXEEXT)

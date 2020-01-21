@@ -1,6 +1,6 @@
-From ea3e5eceab28ad2c00d438efbcea2be37a1b2969 Mon Sep 17 00:00:00 2001
+From fac114e44c00382af087fec04cd4c2fbd144d759 Mon Sep 17 00:00:00 2001
 From: Hongxu Jia <hongxu.jia@windriver.com>
-Date: Sun, 22 Sep 2019 14:31:51 +0800
+Date: Sat, 21 Dec 2019 13:03:23 +0800
 Subject: [PATCH] conditional enable fips mode
 
 Insert ssh_enable_fips_mode to ssh_malloc_init where each main app will invoke,
@@ -14,10 +14,10 @@ Signed-off-by: Hongxu Jia <hongxu.jia@windriver.com>
  1 file changed, 24 insertions(+)
 
 diff --git a/xmalloc.c b/xmalloc.c
-index 5cc0310..0218ccd 100644
+index 9cd0127..75d5018 100644
 --- a/xmalloc.c
 +++ b/xmalloc.c
-@@ -23,12 +23,20 @@
+@@ -23,6 +23,10 @@
  #include <stdlib.h>
  #include <string.h>
  
@@ -28,17 +28,23 @@ index 5cc0310..0218ccd 100644
  #include "xmalloc.h"
  #include "log.h"
  
+@@ -30,11 +34,15 @@
+ char *malloc_options = "S";
+ #endif /* __OpenBSD__ */
+ 
 +void ssh_enable_fips_mode(void);
 +
- void
- ssh_malloc_init(void)
+ void *
+ xmalloc(size_t size)
  {
+ 	void *ptr;
+ 
 +	ssh_enable_fips_mode();
 +
- #if defined(__OpenBSD__)
- 	extern char *malloc_options;
- 
-@@ -116,3 +124,19 @@ xasprintf(char **ret, const char *fmt, ...)
+ 	if (size == 0)
+ 		fatal("xmalloc: zero size");
+ 	ptr = malloc(size);
+@@ -110,3 +118,19 @@ xasprintf(char **ret, const char *fmt, ...)
  
  	return (i);
  }

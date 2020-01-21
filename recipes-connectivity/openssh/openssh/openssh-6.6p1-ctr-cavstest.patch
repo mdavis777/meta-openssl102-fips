@@ -1,7 +1,7 @@
-From a94a3d95439018dc7d276ec72de91af369ea413e Mon Sep 17 00:00:00 2001
+From 6d65893a85bddfc543ce894ee4940bd0d5ab368e Mon Sep 17 00:00:00 2001
 From: Hongxu Jia <hongxu.jia@windriver.com>
-Date: Sun, 22 Sep 2019 21:32:18 +0800
-Subject: [PATCH 1/2] add CAVS test driver for the aes-ctr ciphers
+Date: Sat, 21 Dec 2019 13:05:19 +0800
+Subject: [PATCH] add CAVS test driver for the aes-ctr ciphers
 
 Original submission to Fedora, see:
    https://lists.fedoraproject.org/pipermail/scm-commits/2012-January/715044.html
@@ -25,7 +25,7 @@ Signed-off-by: Hongxu Jia <hongxu.jia@windriver.com>
  create mode 100644 ctr-cavstest.c
 
 diff --git a/Makefile.in b/Makefile.in
-index ddd1804..cb34681 100644
+index 37aec69..1d6e298 100644
 --- a/Makefile.in
 +++ b/Makefile.in
 @@ -23,6 +23,7 @@ SSH_PROGRAM=@bindir@/ssh
@@ -45,7 +45,7 @@ index ddd1804..cb34681 100644
  
  XMSS_OBJS=\
  	ssh-xmss.o \
-@@ -193,6 +194,9 @@ ssh-keysign$(EXEEXT): $(LIBCOMPAT) libssh.a ssh-keysign.o readconf.o uidswap.o c
+@@ -198,6 +199,9 @@ ssh-keysign$(EXEEXT): $(LIBCOMPAT) libssh.a ssh-keysign.o readconf.o uidswap.o c
  ssh-pkcs11-helper$(EXEEXT): $(LIBCOMPAT) libssh.a ssh-pkcs11-helper.o ssh-pkcs11.o
  	$(LD) -o $@ ssh-pkcs11-helper.o ssh-pkcs11.o $(LDFLAGS) -lssh -lopenbsd-compat -lssh -lopenbsd-compat $(LIBS)
  
@@ -53,9 +53,9 @@ index ddd1804..cb34681 100644
 +	$(LD) -o $@ ctr-cavstest.o $(LDFLAGS) -lssh -lopenbsd-compat -lssh -lfipscheck $(LIBS)
 +
  ssh-keyscan$(EXEEXT): $(LIBCOMPAT) libssh.a ssh-keyscan.o
- 	$(LD) -o $@ ssh-keyscan.o $(LDFLAGS) -lssh -lopenbsd-compat -lssh -lfipscheck $(LIBS)
+ 	$(LD) -o $@ ssh-keyscan.o $(LDFLAGS) -lssh -lopenbsd-compat -lfipscheck -lssh $(LIBS)
  
-@@ -343,6 +347,7 @@ install-files:
+@@ -348,6 +352,7 @@ install-files:
  	$(INSTALL) -m 0755 $(STRIP_OPT) ssh-keyscan$(EXEEXT) $(DESTDIR)$(bindir)/ssh-keyscan$(EXEEXT)
  	$(INSTALL) -m 0755 $(STRIP_OPT) sshd$(EXEEXT) $(DESTDIR)$(sbindir)/sshd$(EXEEXT)
  	$(INSTALL) -m 4711 $(STRIP_OPT) ssh-keysign$(EXEEXT) $(DESTDIR)$(SSH_KEYSIGN)$(EXEEXT)
