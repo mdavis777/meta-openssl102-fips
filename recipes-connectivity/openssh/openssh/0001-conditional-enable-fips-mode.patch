@@ -1,4 +1,4 @@
-From fac114e44c00382af087fec04cd4c2fbd144d759 Mon Sep 17 00:00:00 2001
+From 60204df9d1f54f581f9ddc5443228550cadd4b4b Mon Sep 17 00:00:00 2001
 From: Hongxu Jia <hongxu.jia@windriver.com>
 Date: Sat, 21 Dec 2019 13:03:23 +0800
 Subject: [PATCH] conditional enable fips mode
@@ -9,12 +9,162 @@ enable fips mode according to the existence of "/etc/system-fips"
 Upstream-Status: Inappropriate [oe specific]
 
 Signed-off-by: Hongxu Jia <hongxu.jia@windriver.com>
----
- xmalloc.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
 
+The ssh_malloc_init function is removed in openssh 8.1p1, we need to
+insert ssh_enable_fips_mode function to main function for all
+applications.
+
+Signed-off-by: Yi Zhao <yi.zhao@windriver.com>
+---
+ sftp-server-main.c  |  1 +
+ sftp-server.c       |  1 +
+ sftp.c              |  1 +
+ ssh-add.c           |  1 +
+ ssh-agent.c         |  1 +
+ ssh-keygen.c        |  1 +
+ ssh-keyscan.c       |  1 +
+ ssh-keysign.c       |  1 +
+ ssh-pkcs11-helper.c |  1 +
+ ssh.c               |  1 +
+ sshd.c              |  1 +
+ xmalloc.c           | 20 ++++++++++++++++++++
+ xmalloc.h           |  1 +
+ 13 files changed, 32 insertions(+)
+
+diff --git a/sftp-server-main.c b/sftp-server-main.c
+index 06566d3..a10566d 100644
+--- a/sftp-server-main.c
++++ b/sftp-server-main.c
+@@ -39,6 +39,7 @@ main(int argc, char **argv)
+ {
+ 	struct passwd *user_pw;
+ 
++	ssh_enable_fips_mode();
+ 	/* Ensure that fds 0, 1 and 2 are open or directed to /dev/null */
+ 	sanitise_stdfd();
+ 
+diff --git a/sftp-server.c b/sftp-server.c
+index 359204f..346255a 100644
+--- a/sftp-server.c
++++ b/sftp-server.c
+@@ -1576,6 +1576,7 @@ sftp_server_main(int argc, char **argv, struct passwd *user_pw)
+ 	extern char *optarg;
+ 	extern char *__progname;
+ 
++	ssh_enable_fips_mode();
+ 	__progname = ssh_get_progname(argv[0]);
+ 	log_init(__progname, log_level, log_facility, log_stderr);
+ 
+diff --git a/sftp.c b/sftp.c
+index b66037f..ca263ac 100644
+--- a/sftp.c
++++ b/sftp.c
+@@ -2387,6 +2387,7 @@ main(int argc, char **argv)
+ 	size_t num_requests = DEFAULT_NUM_REQUESTS;
+ 	long long limit_kbps = 0;
+ 
++	ssh_enable_fips_mode();
+ 	/* Ensure that fds 0, 1 and 2 are open or directed to /dev/null */
+ 	sanitise_stdfd();
+ 	msetlocale();
+diff --git a/ssh-add.c b/ssh-add.c
+index ebfb8a3..b7d59bc 100644
+--- a/ssh-add.c
++++ b/ssh-add.c
+@@ -577,6 +577,7 @@ main(int argc, char **argv)
+ 	SyslogFacility log_facility = SYSLOG_FACILITY_AUTH;
+ 	LogLevel log_level = SYSLOG_LEVEL_INFO;
+ 
++	ssh_enable_fips_mode();
+ 	/* Ensure that fds 0, 1 and 2 are open or directed to /dev/null */
+ 	sanitise_stdfd();
+ 
+diff --git a/ssh-agent.c b/ssh-agent.c
+index 9c6680a..d701479 100644
+--- a/ssh-agent.c
++++ b/ssh-agent.c
+@@ -1104,6 +1104,7 @@ main(int ac, char **av)
+ 	size_t npfd = 0;
+ 	u_int maxfds;
+ 
++	ssh_enable_fips_mode();
+ 	/* Ensure that fds 0, 1 and 2 are open or directed to /dev/null */
+ 	sanitise_stdfd();
+ 
+diff --git a/ssh-keygen.c b/ssh-keygen.c
+index cb4982d..84dd269 100644
+--- a/ssh-keygen.c
++++ b/ssh-keygen.c
+@@ -2800,6 +2800,7 @@ main(int argc, char **argv)
+ 	extern int optind;
+ 	extern char *optarg;
+ 
++	ssh_enable_fips_mode();
+ 	/* Ensure that fds 0, 1 and 2 are open or directed to /dev/null */
+ 	sanitise_stdfd();
+ 
+diff --git a/ssh-keyscan.c b/ssh-keyscan.c
+index 5de0508..0644261 100644
+--- a/ssh-keyscan.c
++++ b/ssh-keyscan.c
+@@ -663,6 +663,7 @@ main(int argc, char **argv)
+ 	extern int optind;
+ 	extern char *optarg;
+ 
++	ssh_enable_fips_mode();
+ 	__progname = ssh_get_progname(argv[0]);
+ 	seed_rng();
+ 	TAILQ_INIT(&tq);
+diff --git a/ssh-keysign.c b/ssh-keysign.c
+index 6cfd5b4..23cf403 100644
+--- a/ssh-keysign.c
++++ b/ssh-keysign.c
+@@ -173,6 +173,7 @@ main(int argc, char **argv)
+ 	char *host, *fp;
+ 	size_t slen, dlen;
+ 
++	ssh_enable_fips_mode();
+ 	if (pledge("stdio rpath getpw dns id", NULL) != 0)
+ 		fatal("%s: pledge: %s", __progname, strerror(errno));
+ 
+diff --git a/ssh-pkcs11-helper.c b/ssh-pkcs11-helper.c
+index 3bcc244..6a78a1a 100644
+--- a/ssh-pkcs11-helper.c
++++ b/ssh-pkcs11-helper.c
+@@ -325,6 +325,7 @@ main(int argc, char **argv)
+ 	extern char *__progname;
+ 	struct pollfd pfd[2];
+ 
++	ssh_enable_fips_mode();
+ 	__progname = ssh_get_progname(argv[0]);
+ 	seed_rng();
+ 	TAILQ_INIT(&pkcs11_keylist);
+diff --git a/ssh.c b/ssh.c
+index 0724df4..9178673 100644
+--- a/ssh.c
++++ b/ssh.c
+@@ -598,6 +598,7 @@ main(int ac, char **av)
+ 	struct ssh_digest_ctx *md;
+ 	u_char conn_hash[SSH_DIGEST_MAX_LENGTH];
+ 
++	ssh_enable_fips_mode();
+ 	/* Ensure that fds 0, 1 and 2 are open or directed to /dev/null */
+ 	sanitise_stdfd();
+ 
+diff --git a/sshd.c b/sshd.c
+index 2bf8939..c75e34a 100644
+--- a/sshd.c
++++ b/sshd.c
+@@ -1443,6 +1443,7 @@ main(int ac, char **av)
+ 	Authctxt *authctxt;
+ 	struct connection_info *connection_info = NULL;
+ 
++	ssh_enable_fips_mode();
+ #ifdef HAVE_SECUREWARE
+ 	(void)set_auth_parameters(ac, av);
+ #endif
 diff --git a/xmalloc.c b/xmalloc.c
-index 9cd0127..75d5018 100644
+index 9cd0127..e2f8145 100644
 --- a/xmalloc.c
 +++ b/xmalloc.c
 @@ -23,6 +23,10 @@
@@ -28,23 +178,7 @@ index 9cd0127..75d5018 100644
  #include "xmalloc.h"
  #include "log.h"
  
-@@ -30,11 +34,15 @@
- char *malloc_options = "S";
- #endif /* __OpenBSD__ */
- 
-+void ssh_enable_fips_mode(void);
-+
- void *
- xmalloc(size_t size)
- {
- 	void *ptr;
- 
-+	ssh_enable_fips_mode();
-+
- 	if (size == 0)
- 		fatal("xmalloc: zero size");
- 	ptr = malloc(size);
-@@ -110,3 +118,19 @@ xasprintf(char **ret, const char *fmt, ...)
+@@ -110,3 +114,19 @@ xasprintf(char **ret, const char *fmt, ...)
  
  	return (i);
  }
@@ -64,6 +198,15 @@ index 9cd0127..75d5018 100644
 +        }
 +    }
 +}
+diff --git a/xmalloc.h b/xmalloc.h
+index 1d5f62d..d71b8a8 100644
+--- a/xmalloc.h
++++ b/xmalloc.h
+@@ -24,3 +24,4 @@ char	*xstrdup(const char *);
+ int	 xasprintf(char **, const char *, ...)
+                 __attribute__((__format__ (printf, 2, 3)))
+                 __attribute__((__nonnull__ (2)));
++void	ssh_enable_fips_mode(void);
 -- 
 2.7.4
 
