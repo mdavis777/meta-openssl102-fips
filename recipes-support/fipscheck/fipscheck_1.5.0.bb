@@ -49,4 +49,9 @@ pkg_postinst_${PN} () {
     fi
 }
 
+python __anonymous() {
+    if d.getVar("OPENSSL_FIPS_ENABLED", True) != "1":
+        raise bb.parse.SkipPackage("To enable the fipscheck recipe set OPENSSL_FIPS_ENABLED = '1'.")
+}
+
 FILES_${PN} += "${libdir}/fipscheck"
