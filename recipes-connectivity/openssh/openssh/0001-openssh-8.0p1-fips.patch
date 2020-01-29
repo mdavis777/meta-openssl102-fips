@@ -270,10 +270,10 @@ Index: git/readconf.c
 ===================================================================
 --- git.orig/readconf.c
 +++ git/readconf.c
-@@ -2077,17 +2077,18 @@ fill_default_options(Options * options)
- 	all_mac = mac_alg_list(',');
+@@ -2178,18 +2178,19 @@ fill_default_options(Options * options)
  	all_kex = kex_alg_list(',');
  	all_key = sshkey_alg_list(0, 0, 1, ',');
+ 	all_sig = sshkey_alg_list(0, 1, 1, ',');
 -#define ASSEMBLE(what, defaults, all) \
 +#define ASSEMBLE(what, defaults, fips_defaults, all) \
  	do { \
@@ -288,11 +288,13 @@ Index: git/readconf.c
 -	ASSEMBLE(kex_algorithms, KEX_SERVER_KEX, all_kex);
 -	ASSEMBLE(hostbased_key_types, KEX_DEFAULT_PK_ALG, all_key);
 -	ASSEMBLE(pubkey_key_types, KEX_DEFAULT_PK_ALG, all_key);
-+	ASSEMBLE(ciphers, KEX_CLIENT_ENCRYPT, KEX_FIPS_ENCRYPT, all_cipher);
-+	ASSEMBLE(macs, KEX_CLIENT_MAC, KEX_FIPS_MAC, all_mac);
-+	ASSEMBLE(kex_algorithms, KEX_CLIENT_KEX, KEX_DEFAULT_KEX_FIPS, all_kex);
+-	ASSEMBLE(ca_sign_algorithms, SSH_ALLOWED_CA_SIGALGS, all_sig);
++	ASSEMBLE(ciphers, KEX_SERVER_ENCRYPT, KEX_FIPS_ENCRYPT, all_cipher);
++	ASSEMBLE(macs, KEX_SERVER_MAC, KEX_FIPS_MAC, all_mac);
++	ASSEMBLE(kex_algorithms, KEX_SERVER_KEX, KEX_DEFAULT_KEX_FIPS, all_kex);
 +	ASSEMBLE(hostbased_key_types, KEX_DEFAULT_PK_ALG, KEX_FIPS_PK_ALG, all_key);
 +	ASSEMBLE(pubkey_key_types, KEX_DEFAULT_PK_ALG, KEX_FIPS_PK_ALG, all_key);
++	ASSEMBLE(ca_sign_algorithms, SSH_ALLOWED_CA_SIGALGS, KEX_FIPS_PK_ALG, all_sig);
  #undef ASSEMBLE
  	free(all_cipher);
  	free(all_mac);
@@ -314,10 +316,10 @@ Index: git/servconf.c
 ===================================================================
 --- git.orig/servconf.c
 +++ git/servconf.c
-@@ -198,17 +198,18 @@ assemble_algorithms(ServerOptions *o)
- 	all_mac = mac_alg_list(',');
+@@ -209,18 +209,19 @@ assemble_algorithms(ServerOptions *o)
  	all_kex = kex_alg_list(',');
  	all_key = sshkey_alg_list(0, 0, 1, ',');
+ 	all_sig = sshkey_alg_list(0, 1, 1, ',');
 -#define ASSEMBLE(what, defaults, all) \
 +#define ASSEMBLE(what, defaults, fips_defaults, all) \
  	do { \
@@ -332,12 +334,14 @@ Index: git/servconf.c
 -	ASSEMBLE(hostkeyalgorithms, KEX_DEFAULT_PK_ALG, all_key);
 -	ASSEMBLE(hostbased_key_types, KEX_DEFAULT_PK_ALG, all_key);
 -	ASSEMBLE(pubkey_key_types, KEX_DEFAULT_PK_ALG, all_key);
+-	ASSEMBLE(ca_sign_algorithms, SSH_ALLOWED_CA_SIGALGS, all_sig);
 +	ASSEMBLE(ciphers, KEX_SERVER_ENCRYPT, KEX_FIPS_ENCRYPT, all_cipher);
 +	ASSEMBLE(macs, KEX_SERVER_MAC, KEX_FIPS_MAC, all_mac);
 +	ASSEMBLE(kex_algorithms, KEX_SERVER_KEX, KEX_DEFAULT_KEX_FIPS, all_kex);
 +	ASSEMBLE(hostkeyalgorithms, KEX_DEFAULT_PK_ALG, KEX_FIPS_PK_ALG, all_key);
 +	ASSEMBLE(hostbased_key_types, KEX_DEFAULT_PK_ALG, KEX_FIPS_PK_ALG, all_key);
 +	ASSEMBLE(pubkey_key_types, KEX_DEFAULT_PK_ALG, KEX_FIPS_PK_ALG, all_key);
++	ASSEMBLE(ca_sign_algorithms, SSH_ALLOWED_CA_SIGALGS, KEX_FIPS_PK_ALG, all_sig);
  #undef ASSEMBLE
  	free(all_cipher);
  	free(all_mac);
